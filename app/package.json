@@ -1,0 +1,19 @@
+{
+  "name": "keyclock-vue-oidc-demo",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 5000"
+  },
+  "dependencies": {
+    "keycloak-js": "^26.0.0",
+    "vue": "^3.5.10"
+  },
+  "devDependencies": {
+    "vite": "^5.4.8",
+    "@vitejs/plugin-vue": "^5.1.2"
+  }
+}
