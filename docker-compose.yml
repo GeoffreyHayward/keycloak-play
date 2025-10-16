@@ -78,6 +78,9 @@ services:
       KC_EMAIL_FROM_DISPLAY_NAME: "Example Identity (DEV)"
       KC_EMAIL_SSL: "false"
       KC_EMAIL_STARTTLS: "false"
+      
+      # Enable Recovery Codes feature for Account Console
+      KC_FEATURES: "recovery-codes"
 
       # Optional: default hostname for links (fine for localhost dev)
       KC_HOSTNAME: "localhost"

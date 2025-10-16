@@ -111,3 +111,59 @@ Keycloak themes: https://www.keycloak.org/docs/latest/server_development/#_theme
 - Demo logo file: `themes/custom/login/resources/img/logo.svg`
 - Replace `logo.svg` with your own (same filename) or update the `<img>` `src` in the partial to point to a different asset.
 - The navbar uses `${realm.displayNameHtml!realm.name}` as the brand text next to the logo.
+
+## Optional: Two‑Factor (TOTP) Setup
+
+Enable user setup (prompt users to configure OTP):
+- Authentication -> Required Actions
+  - Toggle `Configure OTP` to Enabled
+  - Optional: check `Default Action` to force all users to set up OTP on next login
+
+Enforce 2FA for logins (all users or by condition):
+1) Authentication -> Flows
+2) Create a copy of the `Browser` flow (Actions -> Duplicate) and open the copy
+3) Ensure there is an `OTP Form` (or `Conditional OTP`) execution after Username/Password
+   - To require for all users: set `OTP Form` to `Required`
+   - To apply conditionally: keep `Conditional OTP` and configure its condition (e.g., require if user has OTP, by role, or attribute)
+4) Authentication -> Bindings: set `Browser Flow` to your copied flow
+
+Tune OTP policy (algorithms, digits, period):
+- Authentication -> OTP Policy
+  - Type: `Time-based (TOTP)`
+  - Algorithm: `HmacSHA1` (common default) or stronger
+  - Digits: `6`
+  - Period: `30s`
+  - Look-ahead window: as needed for clock skew
+
+End‑user setup (what users do):
+- After login (if required action is set) they’ll see the OTP setup screen with a QR code
+- Or via Account Console -> Security -> Signing in -> Two‑factor -> Set up authenticator
+- Supported apps: Google Authenticator, Authy, 1Password, Microsoft Authenticator, etc.
+
+Test the flow:
+- Log out, then log in to the `play` realm
+- Enter username/password, then complete OTP with your authenticator app
+
+## Optional: Backup/Recovery Codes
+
+Allow users to generate single‑use recovery codes they can use when they lose access to their authenticator app.
+
+Admin steps
+- Authentication -> Required Actions
+  - Enable: "Configure Recovery Codes" (names can vary slightly by version)
+  - Optional: set as "Default Action" to force setup on next login
+- Authentication -> Flows
+  - Duplicate the `Browser` flow and open the copy
+  - In the OTP step area, add an execution for recovery codes (e.g., "Recovery Codes" or "Recovery Authenticator") and set it to `ALTERNATIVE`
+  - Ensure `OTP Form` is also present (ALTERNATIVE or REQUIRED, per your policy)
+  - Bindings -> set `Browser Flow` to your copied flow
+
+User steps
+- Account Console -> Security -> Signing in -> Recovery codes
+- Generate codes, then download or copy them and store safely
+- During login when prompted for OTP, choose the recovery code option (e.g., "Use recovery code" / "Try another way") and enter one of the codes
+
+Notes
+- Each recovery code is single use; users can regenerate a fresh set any time (old unused codes are invalidated)
+- Keep codes secure; treat them like passwords
+- If your Keycloak version hides recovery codes behind a feature flag, set `KC_FEATURES=recovery-codes` in the Keycloak container environment
