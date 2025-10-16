@@ -112,6 +112,25 @@ Keycloak themes: https://www.keycloak.org/docs/latest/server_development/#_theme
 - Replace `logo.svg` with your own (same filename) or update the `<img>` `src` in the partial to point to a different asset.
 - The navbar uses `${realm.displayNameHtml!realm.name}` as the brand text next to the logo.
 
+## Email Templates
+
+This theme includes custom email templates for verification and password reset:
+- `themes/custom/email/html/template.ftl` — shared email layout (header with logo)
+- `themes/custom/email/html/email-verification.ftl` — verify email
+- `themes/custom/email/html/password-reset.ftl` — password reset
+
+Logo in emails:
+- Set an absolute URL for the logo in `themes/custom/email/theme.properties`:
+  - `emailLogoUrl=https://your.cdn.example.com/path/demo-logo.png`
+- Many email clients block relative URLs and may not display `data:` URIs consistently; a public HTTPS URL is the most reliable.
+
+Enable the email theme:
+- Realm Settings -> Themes -> Email theme: `custom`
+
+Test emails:
+- Realm Settings -> Email -> Test connection (SMTP)
+- Trigger flows: verify email, forgot password; messages should render using the custom layout and button.
+
 ## Optional: Two‑Factor (TOTP) Setup
 
 Enable user setup (prompt users to configure OTP):
@@ -167,3 +186,14 @@ Notes
 - Each recovery code is single use; users can regenerate a fresh set any time (old unused codes are invalidated)
 - Keep codes secure; treat them like passwords
 - If your Keycloak version hides recovery codes behind a feature flag, set `KC_FEATURES=recovery-codes` in the Keycloak container environment
+To show a logo in emails, set one of:
+
+- emailLogoUrl=https://your.cdn.example.com/path/demo-logo.png
+- OR emailLogoDataUri=data:image/png;base64,<BASE64_ENCODED_SMALL_LOGO>
+
+Generate base64 from a PNG (PowerShell):
+  $path = "C:\\path\\to\\small-logo.png"
+  $b64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes($path))
+  "data:image/png;base64,$b64"
+
+Place into themes/custom/email/theme.properties and set Email theme to custom.
