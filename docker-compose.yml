@@ -1,0 +1,97 @@
+networks:
+  public:
+  backend:
+    internal: true   # hidden network for DB + SMTP
+
+volumes:
+  pgdata:
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: keycloak-postgres
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: keycloak-mailhog
+    # SMTP listens on 1025 (kept internal); Web UI on 8025 (exposed)
+    ports:
+      - "8025:8025"     # http://localhost:8025
+    networks:
+      - backend
+      - public
+    healthcheck:
+      test: ["CMD", "sh", "-c", "wget -qO- http://127.0.0.1:8025/api/v2/health | grep -q 'ok'"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4
+    container_name: keycloak
+    command:
+      - start
+      - --http-enabled=true
+      - --http-port=8080
+      - --http-relative-path=/auth
+      - --health-enabled=true
+      - --metrics-enabled=true
+      - --spi-theme-cache-themes=false
+      - --spi-theme-cache-templates=false
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mailhog:
+        condition: service_started
+    environment:
+      # Bootstrap admin user for the Keycloak Admin Console
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+
+      # Database
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
+
+      # Management (health) port
+      KC_HTTP_MANAGEMENT_PORT: 9000
+
+      # SMTP (points at MailHog)
+      KC_EMAIL_HOST: mailhog
+      KC_EMAIL_PORT: 1025
+      KC_EMAIL_FROM: "no-reply@example.com"
+      KC_EMAIL_FROM_DISPLAY_NAME: "Example Identity (DEV)"
+      KC_EMAIL_SSL: "false"
+      KC_EMAIL_STARTTLS: "false"
+
+      # Optional: default hostname for links (fine for localhost dev)
+      KC_HOSTNAME: "localhost"
+
+    ports:
+      - "8080:8080"     # Keycloak HTTP
+      - "9000:9000"     # health/metrics (ready/live)
+    volumes:
+      - ./themes:/opt/keycloak/themes:ro   # put your custom theme here
+    networks:
+      - backend
+      - public
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:9000/health/ready | grep -q 'UP'"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
