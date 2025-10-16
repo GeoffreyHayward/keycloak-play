@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spring + Keycloak Demo</title>
+    <style>
+        body { font-family: system-ui, sans-serif; }
+        main { max-width: 800px; margin: 2rem auto; }
+        button, .btn {
+            padding: 0.6rem 1rem; border-radius: 8px; border: 1px solid #ddd; cursor: pointer; text-decoration: none;
+        }
+        .banner { background:#fffbeb;border:1px solid #fcd34d;color:#78350f;padding:8px 12px;border-radius:8px;margin-bottom:12px;font-size:14px;}
+        .row { display:flex;justify-content:space-between;align-items:center;gap:8px; }
+    </style>
+    <script>
+        function hideHealth(){
+            sessionStorage.setItem('hideHealth','1');
+            const el = document.getElementById('health');
+            if (el) el.style.display = 'none';
+        }
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            if (!(params.get('health') === '1' && sessionStorage.getItem('hideHealth') !== '1')) {
+                const el = document.getElementById('health');
+                if (el) el.style.display = 'none';
+            }
+        });
+    </script>
+    <meta http-equiv="Cache-Control" content="no-store"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
+    <meta name="referrer" content="no-referrer"/>
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    <meta name="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: https://fonts.gstatic.com; img-src 'self' data:; font-src 'self' data:;" />
+    <meta name="Referrer-Policy" content="no-referrer" />
+    <meta name="Permissions-Policy" content="geolocation=(), microphone=(), camera=(), midi=(), interest-cohort=()" />
+    <meta name="Cross-Origin-Embedder-Policy" content="credentialless" />
+</head>
+<body>
+<main>
+    <div id="health" class="banner">
+        <div class="row">
+            <div>
+                <strong>Health</strong>
+                <div>KC URL: <span th:text="${envUrl}"></span></div>
+                <div>Realm: <span th:text="${envRealm}"></span> | Client: <span th:text="${envClient}"></span></div>
+            </div>
+            <button onclick="hideHealth()" style="border:0;background:#f59e0b;color:#fff;padding:4px 8px;border-radius:6px;cursor:pointer;">Hide</button>
+        </div>
+    </div>
+
+    <h1>Spring + Keycloak Demo</h1>
+
+    <div style="margin: 1rem 0;">
+        <a class="btn" th:href="@{/oauth2/authorization/keycloak}">Sign in</a>
+        <form th:action="@{/logout}" method="post" style="display:inline; margin-left:1rem;">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <button type="submit">Sign out</button>
+        </form>
+    </div>
+
+    <section sec:authorize="isAuthenticated()">
+        <h2>Welcome!</h2>
+        <p><strong>User:</strong> <span th:text="${username}"></span> (<span sec:authentication="name"></span>)</p>
+        <p><strong>Email:</strong> <span th:text="${email}"></span></p>
+        <p><strong>Expires in:</strong> <span th:text="${expiresIn}"></span>s</p>
+        <div style="margin-top: 1rem;">
+            <a class="btn" th:href="${accountUrl}" target="_blank" rel="noreferrer noopener">Open Account Console</a>
+        </div>
+    </section>
+
+    <section sec:authorize="isAnonymous()">
+        <p>Not signed in.</p>
+    </section>
+    
+</main>
+</body>
+</html>
