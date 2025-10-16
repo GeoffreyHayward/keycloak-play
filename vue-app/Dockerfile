@@ -1,6 +1,7 @@
 # --- build stage ---
 FROM node:20-alpine AS build
-WORKDIR /app
+ARG APP_DIR=/usr/src/app
+WORKDIR ${APP_DIR}
 COPY package.json package-lock.json* ./
 # Use lockfile when present, otherwise do a regular install
 RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
@@ -15,5 +16,6 @@ RUN npm run build
 
 # --- runtime stage ---
 FROM nginx:1.27-alpine
+ARG APP_DIR=/usr/src/app
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=build ${APP_DIR}/dist /usr/share/nginx/html
