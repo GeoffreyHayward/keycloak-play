@@ -50,7 +50,7 @@
               <div class="text-center mt-3">
                 <form id="kc-select-try-another-way-form" action="${url.loginAction}" method="post">
                   <input type="hidden" name="tryAnotherWay" value="on" />
-                  <a href="#" class="link-secondary" onclick="document.getElementById('kc-select-try-another-way-form').submit();return false;">${msg("recovery-authn-codes-display-name")}</a>
+                  <a href="#" class="link-secondary" onclick="document.getElementById('kc-select-try-another-way-form').submit();return false;">${msg("doTryAnotherWay")}</a>
                 </form>
               </div>
             </div>

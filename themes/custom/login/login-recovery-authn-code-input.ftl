@@ -34,6 +34,12 @@
                   <button class="btn btn-primary" id="kc-login" name="login" type="submit">${msg("doLogIn")}</button>
                 </div>
               </form>
+              <div class="text-center mt-3">
+                <form id="kc-select-try-another-way-form" action="${url.loginAction}" method="post">
+                  <input type="hidden" name="tryAnotherWay" value="on" />
+                  <a href="#" class="link-secondary" onclick="document.getElementById('kc-select-try-another-way-form').submit();return false;">${msg("doTryAnotherWay")}</a>
+                </form>
+              </div>
             </div>
           </div>
           <p class="text-center text-muted small mt-3">Powered by Keycloak</p>
@@ -43,4 +49,3 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5/dist/js/bootstrap.bundle.min.js"></script>
   </body>
   </html>
-
