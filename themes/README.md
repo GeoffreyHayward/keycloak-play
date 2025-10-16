@@ -45,6 +45,8 @@ Realm Settings -> Themes:
 - Login theme: `custom`
 - Save
 
+This custom theme overrides the login page to use Bootstrap 5 (via CDN) and a small custom stylesheet at `${url.resourcesPath}/css/styles.css`.
+
 ## Hide first/last name on registration
 
 Use User Profile to exclude these fields from the registration form:
