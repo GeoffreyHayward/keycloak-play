@@ -104,3 +104,10 @@ Now visit the login page at http://localhost:8080/auth/realms/play/account or a 
 ## Docs
 
 Keycloak themes: https://www.keycloak.org/docs/latest/server_development/#_themes
+
+## Branding & Logo
+
+- Shared navbar partial: `themes/custom/login/partials/navbar.ftl`
+- Demo logo file: `themes/custom/login/resources/img/logo.svg`
+- Replace `logo.svg` with your own (same filename) or update the `<img>` `src` in the partial to point to a different asset.
+- The navbar uses `${realm.displayNameHtml!realm.name}` as the brand text next to the logo.

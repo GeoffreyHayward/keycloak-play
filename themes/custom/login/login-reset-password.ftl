@@ -7,13 +7,14 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="${url.resourcesPath}/css/styles.css" rel="stylesheet" />
   </head>
-  <body class="bg-light d-flex align-items-center" style="min-height: 100vh;">
+  <body class="bg-light" style="min-height: 100vh;">
+    <#include "partials/navbar.ftl">
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-12 col-sm-8 col-md-6 col-lg-5 col-xl-4">
           <div class="card shadow-sm">
             <div class="card-body p-4">
-              <h1 class="h4 text-center mb-3">${realm.displayNameHtml?default("Keycloak")}</h1>
+              
 
               <#if message?has_content>
                 <div class="alert <#if message.type == 'error'>alert-danger<#elseif message.type == 'warning'>alert-warning<#else>alert-info</#if>" role="alert">
